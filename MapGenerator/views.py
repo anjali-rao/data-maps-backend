@@ -17,7 +17,6 @@ class FileUploader(RestApiBuilder):
             look_for_files = True,
             auth=False
         )
-        import pdb; pdb.set_trace()
         #read file
         #convert to json
         #structure file
