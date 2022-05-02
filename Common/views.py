@@ -172,12 +172,6 @@ class SchematizedAPIInterface:
             parsed_request = dict(request.args)
         elif request.method in ['POST', 'PUT']:
             parsed_request = dict(request.form)
-            if not parsed_request:
-                try:
-                    parsed_request = request.get_json(force=True)
-                except:
-                    message = 'POST request body on %s can either be a form or json.' % str(request.path)
-                    raise Exception(message)
             if look_for_files:
                 if len(request.files) >= 1:
                     parsed_request['files'] = request.files.to_dict(flat=False)
@@ -303,10 +297,7 @@ class RestApiBuilder(MethodView, SchematizedAPIInterface, MongoCollectionsInterf
                 request = self.schematized_request
             )
         )
-        self.info_log(
-            param = "REQUEST",
-            obj = self.schematized_request
-        )
+
 
     def dispatcher(self):
         response, status_code = getattr(self, self.api_version + "_" + self.request_type)(
@@ -314,10 +305,7 @@ class RestApiBuilder(MethodView, SchematizedAPIInterface, MongoCollectionsInterf
         if response is None:
             response = self.response
             status_code = 200
-        self.info_log(
-            param = "RESPONSE",
-            obj = response
-        )
+
         if type(status_code) == str and status_code == "pdf":
             resp = make_response(response.getvalue())
             resp.mimetype = 'application/pdf'
@@ -326,22 +314,6 @@ class RestApiBuilder(MethodView, SchematizedAPIInterface, MongoCollectionsInterf
         return make_response(
             jsonify(response),
             status_code
-        )
-
-    def info_log(self, param, obj):
-        self.log_service.info(
-            message = "%s - %s - %s" % (self.api_version, self.request_type.upper(), param),
-            obj = dict(
-                obj = obj
-            )
-        )
-
-    def error_log(self, param, obj):
-        self.log_service.error(
-            message = "%s - %s - %s" % (self.api_version, self.request_type.upper(), param),
-            obj = dict(
-                obj = obj
-            )
         )
 
     def get(self, api_version):

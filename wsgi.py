@@ -16,7 +16,7 @@ def build_app():
     """
 
     app.add_url_rule(
-        '/upload-file/<api_version>',
+        '/upload-file/<api_version>/',
         view_func = FileUploader.as_view('upload-file')
     )
 
